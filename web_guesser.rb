@@ -5,17 +5,18 @@ set :number, rand(100)
 
 get '/' do
   number  = settings.number
-  guess   = params['guess'] unless params['guess'].nil?
+  guess   = params[:guess]
   message = check_guess(guess)
   winner  = winner?(number, guess)
-  params.delete 'guess'
-  erb :index, :locals => { :number => number, :message => message, :winner => winner }
+  cheat   = params[:cheat]
+
+  erb :index, :locals => { :number => number, :message => message, :winner => winner, :cheat => cheat }
 end
 
 def check_guess(guess)
   number = settings.number
-  return 'Pick a number between 1 and 100' if guess.nil? || guess.empty?
   guess = guess.to_i
+  return 'Pick a number between 1 and 100' if invalid?(guess)
 
   if too_low?(number, guess)
     way_off?(number, guess) ? 'Way to low!':'Too low!'
@@ -27,6 +28,8 @@ def check_guess(guess)
     return ''
   end
 end
+
+private
 
 def way_off?(number, guess)
   (number - guess).abs > 5
@@ -42,4 +45,8 @@ end
 
 def winner?(number, guess)
   number == guess.to_i
+end
+
+def invalid?(guess)
+  guess < 1 || guess > 100
 end
