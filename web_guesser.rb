@@ -4,21 +4,42 @@ require 'sinatra/reloader'
 set :number, rand(100)
 
 get '/' do
-  guess = params['guess'].to_i
+  number  = settings.number
+  guess   = params['guess'] unless params['guess'].nil?
   message = check_guess(guess)
-
-  message =
-
-
-  erb :index, :locals => { :number => settings.number, :message => message }
+  winner  = winner?(number, guess)
+  params.delete 'guess'
+  erb :index, :locals => { :number => number, :message => message, :winner => winner }
 end
 
 def check_guess(guess)
-  if guess < settings.number
-    settings.number - guess > 5 ? 'Way to low!':'Too low!'
-  elsif guess > settings.number
-    guess - settings.number > 5 ? 'Way to high!':'Too high!'
+  number = settings.number
+  return 'Pick a number between 1 and 100' if guess.nil? || guess.empty?
+  guess = guess.to_i
+
+  if too_low?(number, guess)
+    way_off?(number, guess) ? 'Way to low!':'Too low!'
+  elsif too_high?(number, guess)
+    way_off?(number, guess) ? 'Way to high!':'Too high!'
+  elsif winner?(number, guess)
+    'You got it right!'
   else
-    "You got it right!"
+    return ''
   end
+end
+
+def way_off?(number, guess)
+  (number - guess).abs > 5
+end
+
+def too_low?(number, guess)
+  guess < number
+end
+
+def too_high?(number, guess)
+  guess > number
+end
+
+def winner?(number, guess)
+  number == guess.to_i
 end

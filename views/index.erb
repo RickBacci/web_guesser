@@ -4,7 +4,10 @@
     <p>
       <%= message %><br>
       <br>
-      The SECRET NUMBER is <%= number %>
+
+      <% if winner %>
+        The SECRET NUMBER is <%= number %>
+      <%end%>
     </p>
     <form>
       <input type='text' name='guess'/>
